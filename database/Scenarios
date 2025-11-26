@@ -1,0 +1,66 @@
+Bank A- Fraud Injection
+️1️⃣ Account Takeover (ATO) on Account #1
+USE bank_a_db;
+
+INSERT INTO transactions (account_id, amount, transaction_type, is_fraud)
+VALUES
+(1, -950.40, 'withdrawal', 1),
+(1, -875.22, 'withdrawal', 1),
+(1, -690.10, 'withdrawal', 1);
+
+2️⃣ Money Mule (Receiving dirty money → sending out)
+-- Dirty money inbound
+INSERT INTO transactions (account_id, amount, transaction_type, is_fraud)
+VALUES
+(4, 5000.00, 'deposit', 1);
+
+-- Immediately out
+INSERT INTO transactions (account_id, amount, transaction_type, is_fraud)
+VALUES
+(4, -4800.00, 'withdrawal', 1);
+
+🏦 BANK B — Fraud Injection SQL
+1️⃣ Synthetic Identity – New Customer w/ Immediate Activity
+USE bank_b_db;
+
+INSERT INTO customers (customer_id, full_name, email, phone)
+VALUES (999, 'Tyrell Manning', 'tyrell.synthetic@example.com', '999-555-4421');
+
+INSERT INTO accounts (account_id, customer_id, account_type, balance)
+VALUES (999, 999, 'checking', 50.00);
+
+INSERT INTO transactions (account_id, amount, transaction_type, is_fraud)
+VALUES
+(999, 8500.00, 'deposit', 1),
+(999, -8200.00, 'withdrawal', 1);
+
+2️⃣ Rapid-fire withdrawals
+INSERT INTO transactions (account_id, amount, transaction_type, is_fraud)
+VALUES
+(7, -45.00, 'withdrawal', 1),
+(7, -42.00, 'withdrawal', 1),
+(7, -41.00, 'withdrawal', 1),
+(7, -39.00, 'withdrawal', 1),
+(7, -44.00, 'withdrawal', 1);
+
+🏦 BANK C — Fraud Injection SQL
+1️⃣ Cross-Bank Layering (A → B → C)
+
+Money laundering pattern:
+
+From bank_a_db → bank_b_db → bank_c_db
+(we simulate only final stage inside bank C)
+
+USE bank_c_db;
+
+INSERT INTO transactions (account_id, amount, transaction_type, is_fraud)
+VALUES
+(6, 4200.00, 'deposit', 1),
+(6, -4100.00, 'withdrawal', 1);
+
+2️⃣ Fraud Ring (circular transfers)
+INSERT INTO transactions (account_id, amount, transaction_type, is_fraud)
+VALUES
+(1, 1200.00, 'deposit', 1),
+(2, -1100.00, 'withdrawal', 1),
+(3, 1080.00, 'deposit', 1);
