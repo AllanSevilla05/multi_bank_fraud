@@ -1,3 +1,5 @@
 .idea/
 .venv/
 .python-version
+.gitignore
+.DS_Store
